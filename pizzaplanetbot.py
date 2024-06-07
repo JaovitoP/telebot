@@ -3,6 +3,9 @@
 
 from transformers import pipeline
 import telebot
+from googletrans import Translator
+
+translator = Translator()
 
 # Carregar o pipeline de question-answering com o modelo biobert
 qa = pipeline('question-answering', model='ktrapeznikov/biobert_v1.1_pubmed_squad_v2', tokenizer='ktrapeznikov/biobert_v1.1_pubmed_squad_v2')
@@ -10,7 +13,7 @@ qa = pipeline('question-answering', model='ktrapeznikov/biobert_v1.1_pubmed_squa
 # Definir o contexto para o modelo
 context = context = """
 Pizza Planet is a fictional themed restaurant and arcade that appears in the universe of Toy Story, an animated film series produced by Pixar Animation Studios and distributed by Walt Disney Pictures.
-1. **Monday to Friday Promotion**: From Monday to Friday, all large pizzas are 20% off!
+1. **Monday to Friday Promotion**: On this Promotion, From Monday to Friday, all large pizzas are 20% off!
 2. **Weekend Promotion**: On weekends, buy a large pizza and get a free portion of fries.
 3. **Family Combo**: 2 large pizzas + 1 2L soft drink for just R$59.90.
 4. **Birthday Promotion**: Is it your birthday? Get a free medium pizza when you present photo ID.
@@ -19,6 +22,8 @@ Pizza Planet is a fictional themed restaurant and arcade that appears in the uni
 7. **Happy Hour Promotion**: From 6pm to 8pm, all medium pizzas for just R$19.90.
 8. **Promotion for Students**: Students have a 15% discount when presenting their student card.
 """
+
+contexto_traduzido = translator.translate(context, src='en', dest='pt')
 
 
 # Chave API do Telegram
@@ -87,14 +92,22 @@ def endereco(mensagem):
 @bot.message_handler(func=lambda message: True)
 def responder_pergunta(mensagem):
     question = mensagem.text
-    result = qa(context=context, question=question)
+    question_traduzida_obj = translator.translate(question, src='pt', dest='en')
+    question_traduzida = question_traduzida_obj.text
+    result = qa(context=context, question=question_traduzida)
     resposta = result['answer']
     
     # Verifique se a resposta é relevante
     if resposta.strip() == "" or result['score'] < 0.2:  # Pode ajustar o limiar de score conforme necessário
         mostrar_menu(mensagem.chat.id)
     else:
-        bot.send_message(mensagem.chat.id, resposta)
+        try:
+                    resposta_traduzida_obj = translator.translate(resposta, src='en', dest='pt')
+                    resposta_traduzida = resposta_traduzida_obj.text
+                    bot.send_message(mensagem.chat.id, resposta_traduzida)
+        except Exception as e:
+                    bot.send_message(mensagem.chat.id, f"Erro ao traduzir a resposta: {str(e)}")
+                    bot.send_message(mensagem.chat.id, resposta)  # Envia a resposta original em
 
 
 # Função para exibir o menu padrão
