@@ -14,11 +14,9 @@ def classificar_intencao(message):
     result = classifier(message, intencoes)
     return result['labels'][0]
 
-
-# Chave API do Telegram
 CHAVE_API = "7197106373:AAGDXRTj_rkMkNlZY88wzSuwF5psend6NjU"
 
-# Inicializar o bot do Telegram
+
 bot = telebot.TeleBot(CHAVE_API)
 @bot.message_handler(commands=["mussarela"])
 def pizza(mensagem):
@@ -110,12 +108,4 @@ def handle_message(mensagem):
             7. **Promoção Happy Hour**: Das 18h às 20h, todas as pizzas médias por apenas R$ 19,90.
             8. **Promoção para Estudantes**: Estudantes têm desconto de 15% na apresentação do cartão de estudante.""")
                          
-
-# Comandos predefinidos
-
-
-
-
-
-
 bot.polling()
