@@ -2,7 +2,8 @@
 
 from transformers import pipeline
 import telebot
-
+a = 2;
+a = 2; 
 
 qa = pipeline('question-answering', model='ktrapeznikov/biobert_v1.1_pubmed_squad_v2', tokenizer='ktrapeznikov/biobert_v1.1_pubmed_squad_v2')
 
